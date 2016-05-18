@@ -20,6 +20,7 @@ import org.apache.http.HttpHost;
 import org.bson.Document;
 
 import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.selector.Selectable;
 import us.codecraft.webmagic.utils.LoadConfig;
@@ -101,7 +102,9 @@ public class SzseProcessor implements PageProcessor{
         			str = java.net.URLDecoder.decode(str,"UTF-8");
         			if(results.contains(str) || str.matches("(?i)^mailto:.*?")) continue;
         			
-        			page.addTargetRequest(str);
+        			Request request = new Request(str);
+        			request.putExtra("level", "2");
+        			page.addTargetRequest(request);
         			
         			//未下载的不需要再次插入数据库
         			if(resultsC.contains(str)) continue;
