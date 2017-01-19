@@ -5,14 +5,14 @@
  * @author Zhuyj
  * @date 2016-4-15
  */
-package szse;
+package custom;
 
 import java.util.Properties;
 
-import us.codecraft.webmagic.SzseSpider;
-import us.codecraft.webmagic.downloader.selenium.SzseSeleniumDownloader;
-import us.codecraft.webmagic.pipeline.SzseFilePipeline;
-import us.codecraft.webmagic.processor.SzseProcessor;
+import us.codecraft.webmagic.PicSpider;
+import us.codecraft.webmagic.downloader.selenium.PicSeleniumDownloader;
+import us.codecraft.webmagic.pipeline.PicFilePipeline;
+import us.codecraft.webmagic.processor.PicProcessor;
 import us.codecraft.webmagic.utils.LoadConfig;
 
 /**
@@ -26,10 +26,10 @@ public class StartSpider {
 	public static void main(String[] args) {
 		try {
 			Properties sConfig = LoadConfig.getConfig();
-			SzseSpider.create(new SzseProcessor())
+			PicSpider.create(new PicProcessor())
 			.addUrl(sConfig.getProperty("starUrl"))
-			.addPipeline(new SzseFilePipeline(sConfig.getProperty("savePath")))
-			.setDownloader(new SzseSeleniumDownloader()
+			.addPipeline(new PicFilePipeline(sConfig.getProperty("savePath")))
+			.setDownloader(new PicSeleniumDownloader()
 								.setPageSize(Integer.valueOf(sConfig.getProperty("deepPageSize")))
 								.setSleepTime(Integer.valueOf(sConfig.getProperty("sleepTime"))))
 			.thread(Integer.valueOf(sConfig.getProperty("threadNum")))

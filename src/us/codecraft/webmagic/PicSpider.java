@@ -48,7 +48,7 @@ import com.google.common.collect.Lists;
  * @date 2016-4-15
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class SzseSpider implements Runnable, Task {
+public class PicSpider implements Runnable, Task {
 
     protected Downloader downloader;
 
@@ -107,8 +107,8 @@ public class SzseSpider implements Runnable, Task {
      * @return new spider
      * @see PageProcessor
      */
-    public static SzseSpider create(PageProcessor pageProcessor) {
-        return new SzseSpider(pageProcessor);
+    public static PicSpider create(PageProcessor pageProcessor) {
+        return new PicSpider(pageProcessor);
     }
 
     /**
@@ -116,7 +116,7 @@ public class SzseSpider implements Runnable, Task {
      *
      * @param pageProcessor
      */
-    public SzseSpider(PageProcessor pageProcessor) {
+    public PicSpider(PageProcessor pageProcessor) {
         this.pageProcessor = pageProcessor;
         this.site = pageProcessor.getSite();
         this.startRequests = pageProcessor.getSite().getStartRequests();
@@ -129,7 +129,7 @@ public class SzseSpider implements Runnable, Task {
      * @param startUrls
      * @return this
      */
-    public SzseSpider startUrls(List<String> startUrls) {
+    public PicSpider startUrls(List<String> startUrls) {
         checkIfRunning();
         this.startRequests = UrlUtils.convertToRequests(startUrls);
         return this;
@@ -142,7 +142,7 @@ public class SzseSpider implements Runnable, Task {
      * @param startRequests
      * @return this
      */
-    public SzseSpider startRequest(List<Request> startRequests) {
+    public PicSpider startRequest(List<Request> startRequests) {
         checkIfRunning();
         this.startRequests = startRequests;
         return this;
@@ -155,7 +155,7 @@ public class SzseSpider implements Runnable, Task {
      * @param uuid
      * @return this
      */
-    public SzseSpider setUUID(String uuid) {
+    public PicSpider setUUID(String uuid) {
         this.uuid = uuid;
         return this;
     }
@@ -168,7 +168,7 @@ public class SzseSpider implements Runnable, Task {
      * @Deprecated
      * @see #setScheduler(us.codecraft.webmagic.scheduler.Scheduler)
      */
-    public SzseSpider scheduler(Scheduler scheduler) {
+    public PicSpider scheduler(Scheduler scheduler) {
         return setScheduler(scheduler);
     }
 
@@ -180,7 +180,7 @@ public class SzseSpider implements Runnable, Task {
      * @see Scheduler
      * @since 0.2.1
      */
-    public SzseSpider setScheduler(Scheduler scheduler) {
+    public PicSpider setScheduler(Scheduler scheduler) {
         checkIfRunning();
         Scheduler oldScheduler = this.scheduler;
         this.scheduler = scheduler;
@@ -202,7 +202,7 @@ public class SzseSpider implements Runnable, Task {
      * @see Pipeline
      * @since 0.2.1
      */
-    public SzseSpider addPipeline(Pipeline pipeline) {
+    public PicSpider addPipeline(Pipeline pipeline) {
         checkIfRunning();
         this.pipelines.add(pipeline);
         return this;
@@ -216,7 +216,7 @@ public class SzseSpider implements Runnable, Task {
      * @see Pipeline
      * @since 0.4.1
      */
-    public SzseSpider setPipelines(List<Pipeline> pipelines) {
+    public PicSpider setPipelines(List<Pipeline> pipelines) {
         checkIfRunning();
         this.pipelines = pipelines;
         return this;
@@ -227,7 +227,7 @@ public class SzseSpider implements Runnable, Task {
      *
      * @return this
      */
-    public SzseSpider clearPipeline() {
+    public PicSpider clearPipeline() {
         pipelines = new ArrayList<Pipeline>();
         return this;
     }
@@ -240,7 +240,7 @@ public class SzseSpider implements Runnable, Task {
      * @return this
      * @see Downloader
      */
-    public SzseSpider setDownloader(Downloader downloader) {
+    public PicSpider setDownloader(Downloader downloader) {
         checkIfRunning();
         this.downloader = downloader;
         return this;
@@ -442,7 +442,7 @@ public class SzseSpider implements Runnable, Task {
      * @param urls
      * @return
      */
-    public SzseSpider addUrl(String... urls) {
+    public PicSpider addUrl(String... urls) {
         for (String url : urls) {
             addRequest(new Request(url));
         }
@@ -492,7 +492,7 @@ public class SzseSpider implements Runnable, Task {
      * @param requests
      * @return
      */
-    public SzseSpider addRequest(Request... requests) {
+    public PicSpider addRequest(Request... requests) {
         for (Request request : requests) {
             addRequest(request);
         }
@@ -542,7 +542,7 @@ public class SzseSpider implements Runnable, Task {
      * @param threadNum
      * @return this
      */
-    public SzseSpider thread(int threadNum) {
+    public PicSpider thread(int threadNum) {
         checkIfRunning();
         this.threadNum = threadNum;
         if (threadNum <= 0) {
@@ -557,7 +557,7 @@ public class SzseSpider implements Runnable, Task {
      * @param threadNum
      * @return this
      */
-    public SzseSpider thread(ExecutorService executorService, int threadNum) {
+    public PicSpider thread(ExecutorService executorService, int threadNum) {
         checkIfRunning();
         this.threadNum = threadNum;
         if (threadNum <= 0) {
@@ -578,7 +578,7 @@ public class SzseSpider implements Runnable, Task {
      * @param exitWhenComplete
      * @return
      */
-    public SzseSpider setExitWhenComplete(boolean exitWhenComplete) {
+    public PicSpider setExitWhenComplete(boolean exitWhenComplete) {
         this.exitWhenComplete = exitWhenComplete;
         return this;
     }
@@ -655,7 +655,7 @@ public class SzseSpider implements Runnable, Task {
      * @return
      * @since 0.4.0
      */
-    public SzseSpider setSpawnUrl(boolean spawnUrl) {
+    public PicSpider setSpawnUrl(boolean spawnUrl) {
         this.spawnUrl = spawnUrl;
         return this;
     }
@@ -672,7 +672,7 @@ public class SzseSpider implements Runnable, Task {
         return uuid;
     }
 
-    public SzseSpider setExecutorService(ExecutorService executorService) {
+    public PicSpider setExecutorService(ExecutorService executorService) {
         checkIfRunning();
         this.executorService = executorService;
         return this;
@@ -687,7 +687,7 @@ public class SzseSpider implements Runnable, Task {
         return spiderListeners;
     }
 
-    public SzseSpider setSpiderListeners(List<SpiderListener> spiderListeners) {
+    public PicSpider setSpiderListeners(List<SpiderListener> spiderListeners) {
         this.spiderListeners = spiderListeners;
         return this;
     }

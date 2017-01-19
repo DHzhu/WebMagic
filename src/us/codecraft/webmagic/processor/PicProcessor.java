@@ -37,7 +37,7 @@ import com.mongodb.client.MongoDatabase;
  * @author Zhuyj
  * @date 2016-4-14
  */
-public class SzseProcessor implements PageProcessor{
+public class PicProcessor implements PageProcessor{
 	
 	private Site site = Site.me();
 

@@ -52,18 +52,18 @@ import com.mongodb.client.MongoDatabase;
  * @date 2016-4-14
  */
 @ThreadSafe
-public class SzseFilePipeline extends FilePersistentBase implements Pipeline {
+public class PicFilePipeline extends FilePersistentBase implements Pipeline {
 
     private Log logger = LogFactory.getLog(getClass());
     
     /**
      * create a FilePipeline with default path"/data/webmagic/"
      */
-    public SzseFilePipeline() {
+    public PicFilePipeline() {
         setPath("/data/webmagic/");
     }
 
-    public SzseFilePipeline(String path) {
+    public PicFilePipeline(String path) {
         setPath(path);
     }
 
