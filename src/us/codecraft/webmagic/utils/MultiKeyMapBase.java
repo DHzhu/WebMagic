@@ -14,7 +14,8 @@ import java.util.Map;
  */
 public abstract class MultiKeyMapBase {
 
-    protected static final Class<? extends Map> DEFAULT_CLAZZ = HashMap.class;
+    @SuppressWarnings("rawtypes")
+	protected static final Class<? extends Map> DEFAULT_CLAZZ = HashMap.class;
     @SuppressWarnings("rawtypes")
     private Class<? extends Map> protoMapClass = DEFAULT_CLAZZ;
 

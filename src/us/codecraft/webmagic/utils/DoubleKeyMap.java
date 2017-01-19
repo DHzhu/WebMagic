@@ -16,7 +16,8 @@ public class DoubleKeyMap<K1, K2, V> extends MultiKeyMapBase {
         this(map,DEFAULT_CLAZZ);
     }
 
-    public DoubleKeyMap(Class<? extends Map> protoMapClass) {
+    @SuppressWarnings("rawtypes")
+	public DoubleKeyMap(Class<? extends Map> protoMapClass) {
         super(protoMapClass);
         init();
     }

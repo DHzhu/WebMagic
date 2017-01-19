@@ -37,7 +37,8 @@ public class FilePipeline extends FilePersistentBase implements Pipeline {
         setPath(path);
     }
 
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     public void process(ResultItems resultItems, Task task) {
         String path = this.path + PATH_SEPERATOR + task.getUUID() + PATH_SEPERATOR;
         try {

@@ -38,13 +38,14 @@ import java.util.List;
  * @author code4crafter@gmail.com <br>
  * @since 0.2.0
  */
+@SuppressWarnings({"rawtypes","unused"})
 public class OOSpider<T> extends Spider {
 
     private ModelPageProcessor modelPageProcessor;
 
     private ModelPipeline modelPipeline;
 
-    private PageModelPipeline pageModelPipeline;
+	private PageModelPipeline pageModelPipeline;
 
     private List<Class> pageModelClasses = new ArrayList<Class>();
 

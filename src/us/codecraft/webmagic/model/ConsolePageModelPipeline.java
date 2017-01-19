@@ -10,6 +10,7 @@ import us.codecraft.webmagic.pipeline.PageModelPipeline;
  * @author code4crafter@gmail.com <br>
  * @since 0.2.0
  */
+@SuppressWarnings("rawtypes")
 public class ConsolePageModelPipeline implements PageModelPipeline {
     @Override
     public void process(Object o, Task task) {

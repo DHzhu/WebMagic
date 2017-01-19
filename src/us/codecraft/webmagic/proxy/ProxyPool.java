@@ -96,6 +96,7 @@ public class ProxyPool {
 		return tmp;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void readProxyList() {
 		try {
 			ObjectInputStream is = new ObjectInputStream(new FileInputStream(proxyFile));

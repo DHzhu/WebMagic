@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
  * @author code4crafter@gmail.com <br>
  * @since 0.2.0
  */
+@SuppressWarnings("rawtypes")
 class ModelPageProcessor implements PageProcessor {
 
     private List<PageModelExtractor> pageModelExtractorList = new ArrayList<PageModelExtractor>();

@@ -21,6 +21,7 @@ import us.codecraft.webmagic.utils.FilePersistentBase;
  * @author code4crafter@gmail.com <br>
  * @since 0.3.0
  */
+@SuppressWarnings("rawtypes")
 public class FilePageModelPipeline extends FilePersistentBase implements PageModelPipeline {
 
     private Log logger = LogFactory.getLog(getClass());

@@ -28,6 +28,7 @@ import us.codecraft.webmagic.utils.Experimental;
  * @since 0.5.0
  */
 @Experimental
+@SuppressWarnings("unused")
 public class SpiderMonitor {
 
     private static SpiderMonitor INSTANCE = new SpiderMonitor();

@@ -23,7 +23,8 @@ public class JsonPathSelector implements Selector {
         this.jsonPath = JsonPath.compile(this.jsonPathStr);
     }
 
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     public String select(String text) {
         Object object = jsonPath.read(text);
         if (object == null) {
@@ -38,7 +39,8 @@ public class JsonPathSelector implements Selector {
         return object.toString();
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public List<String> selectList(String text) {
         List<String> list = new ArrayList<String>();
         Object object = jsonPath.read(text);

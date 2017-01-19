@@ -57,7 +57,8 @@ public class FileCache extends FilePersistentBase implements Downloader, Pipelin
         return this;
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public Page download(Request request, Task task) {
         String path = this.path + "/" + task.getUUID() + "/";
         Page page = null;

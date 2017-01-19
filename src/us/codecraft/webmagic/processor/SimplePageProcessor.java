@@ -18,7 +18,8 @@ public class SimplePageProcessor implements PageProcessor {
 
     private Site site;
 
-    public SimplePageProcessor(String startUrl, String urlPattern) {
+    @SuppressWarnings("deprecation")
+	public SimplePageProcessor(String startUrl, String urlPattern) {
         this.site = Site.me().addStartUrl(startUrl).
                 setDomain(UrlUtils.getDomain(startUrl));
         //compile "*" expression to regex

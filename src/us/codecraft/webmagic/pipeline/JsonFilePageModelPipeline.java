@@ -23,6 +23,7 @@ import com.alibaba.fastjson.JSON;
  * @author code4crafter@gmail.com <br>
  * @since 0.2.0
  */
+@SuppressWarnings("rawtypes")
 public class JsonFilePageModelPipeline extends FilePersistentBase implements PageModelPipeline {
 
     private Log logger = LogFactory.getLog(getClass());

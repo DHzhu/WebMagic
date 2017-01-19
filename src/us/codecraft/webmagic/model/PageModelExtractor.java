@@ -36,6 +36,7 @@ import us.codecraft.webmagic.utils.ExtractorUtils;
  * @author code4crafter@gmail.com <br>
  * @since 0.2.0
  */
+@SuppressWarnings({"rawtypes","deprecation","unchecked"})
 class PageModelExtractor {
 
     private List<Pattern> targetUrlPatterns = new ArrayList<Pattern>();
@@ -139,7 +140,7 @@ class PageModelExtractor {
         return null;
     }
 
-    private FieldExtractor getAnnotationExtractByUrl(Class clazz, Field field) {
+	private FieldExtractor getAnnotationExtractByUrl(Class clazz, Field field) {
         FieldExtractor fieldExtractor = null;
         ExtractByUrl extractByUrl = field.getAnnotation(ExtractByUrl.class);
         if (extractByUrl != null) {
@@ -199,7 +200,7 @@ class PageModelExtractor {
         return fieldExtractor;
     }
 
-    public static Method getSetterMethod(Class clazz, Field field) {
+	public static Method getSetterMethod(Class clazz, Field field) {
         String name = "set" + StringUtils.capitalize(field.getName());
         try {
             Method declaredMethod = clazz.getDeclaredMethod(name, field.getType());

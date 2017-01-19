@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  */
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
+@SuppressWarnings("rawtypes")
 public @interface Formatter {
 
     /**

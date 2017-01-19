@@ -1,6 +1,5 @@
 package us.codecraft.webmagic;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -21,7 +20,8 @@ public class ResultItems {
 
     private boolean skip;
 
-    public <T> T get(String key) {
+    @SuppressWarnings("unchecked")
+	public <T> T get(String key) {
         Object o = fields.get(key);
         if (o == null) {
             return null;

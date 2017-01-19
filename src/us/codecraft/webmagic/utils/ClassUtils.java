@@ -10,7 +10,8 @@ import java.util.Set;
  */
 public abstract class ClassUtils {
 
-    public static Set<Field> getFieldsIncludeSuperClass(Class clazz) {
+    @SuppressWarnings("rawtypes")
+	public static Set<Field> getFieldsIncludeSuperClass(Class clazz) {
         Set<Field> fields = new LinkedHashSet<Field>();
         Class current = clazz;
         while (current != null) {

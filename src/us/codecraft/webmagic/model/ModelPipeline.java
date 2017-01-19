@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author code4crafter@gmail.com <br>
  * @since 0.2.0
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 class ModelPipeline implements Pipeline {
 
     private Map<Class, PageModelPipeline> pageModelPipelines = new ConcurrentHashMap<Class, PageModelPipeline>();
@@ -29,7 +30,8 @@ class ModelPipeline implements Pipeline {
         return this;
     }
 
-    @Override
+	@SuppressWarnings("deprecation")
+	@Override
     public void process(ResultItems resultItems, Task task) {
         for (Map.Entry<Class, PageModelPipeline> classPageModelPipelineEntry : pageModelPipelines.entrySet()) {
             Object o = resultItems.get(classPageModelPipelineEntry.getKey().getCanonicalName());

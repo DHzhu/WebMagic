@@ -28,7 +28,8 @@ class PageModelCollectorPipeline<T> implements CollectorPipeline<T> {
         return classPipeline.getCollected();
     }
 
-    @Override
+    @SuppressWarnings({ "deprecation", "unchecked" })
+	@Override
     public synchronized void process(ResultItems resultItems, Task task) {
         Object o = resultItems.get(clazz.getCanonicalName());
         if (o != null) {

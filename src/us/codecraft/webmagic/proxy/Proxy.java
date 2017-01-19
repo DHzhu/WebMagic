@@ -44,6 +44,7 @@ import org.apache.http.HttpHost;
            |        |+-------------------+
            +--------+
  */
+@SuppressWarnings("unused")
 public class Proxy implements Delayed, Serializable {
 
 	private static final long serialVersionUID = 228939737383625551L;
@@ -141,6 +142,7 @@ public class Proxy implements Delayed, Serializable {
 
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public long getDelay(TimeUnit unit) {
 		return unit.convert(canReuseTime - System.nanoTime(), unit.NANOSECONDS);

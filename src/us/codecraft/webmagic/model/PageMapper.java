@@ -8,6 +8,7 @@ import java.util.List;
  * @author code4crafer@gmail.com
  * @since 0.5.2
  */
+@SuppressWarnings({"unused","unchecked"})
 public class PageMapper<T> {
 
     private Class<T> clazz;
@@ -19,7 +20,7 @@ public class PageMapper<T> {
         this.pageModelExtractor = PageModelExtractor.create(clazz);
     }
 
-    public T get(Page page) {
+	public T get(Page page) {
         return (T) pageModelExtractor.process(page);
     }
 

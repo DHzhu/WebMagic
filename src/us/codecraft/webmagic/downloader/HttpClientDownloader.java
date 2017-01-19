@@ -131,7 +131,8 @@ public class HttpClientDownloader extends AbstractDownloader {
         return acceptStatCode.contains(statusCode);
     }
 
-    protected HttpUriRequest getHttpUriRequest(Request request, Site site, Map<String, String> headers) {
+    @SuppressWarnings("deprecation")
+	protected HttpUriRequest getHttpUriRequest(Request request, Site site, Map<String, String> headers) {
         RequestBuilder requestBuilder = selectRequestMethod(request).setUri(request.getUrl());
         if (headers != null) {
             for (Map.Entry<String, String> headerEntry : headers.entrySet()) {

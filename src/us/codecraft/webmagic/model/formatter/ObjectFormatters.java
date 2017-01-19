@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author code4crafter@gmail.com
  * @since 0.3.2
  */
+@SuppressWarnings("rawtypes")
 public class ObjectFormatters {
 
     private static Map<Class, Class<? extends ObjectFormatter>> formatterMap = new ConcurrentHashMap<Class, Class<? extends ObjectFormatter>>();

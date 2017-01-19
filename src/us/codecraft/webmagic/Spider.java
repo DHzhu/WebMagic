@@ -19,6 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHost;
 
+import com.google.common.collect.Lists;
+
 import us.codecraft.webmagic.downloader.Downloader;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.pipeline.CollectorPipeline;
@@ -30,8 +32,6 @@ import us.codecraft.webmagic.scheduler.QueueScheduler;
 import us.codecraft.webmagic.scheduler.Scheduler;
 import us.codecraft.webmagic.selector.thread.CountableThreadPool;
 import us.codecraft.webmagic.utils.UrlUtils;
-
-import com.google.common.collect.Lists;
 
 /**
  * Entrance of a crawler.<br>
@@ -488,7 +488,8 @@ public class Spider implements Runnable, Task {
      * @param urls
      * @return
      */
-    public <T> List<T> getAll(Collection<String> urls) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public <T> List<T> getAll(Collection<String> urls) {
         destroyWhenExit = false;
         spawnUrl = false;
         startRequests.clear();
@@ -503,7 +504,8 @@ public class Spider implements Runnable, Task {
         return collectorPipeline.getCollected();
     }
 
-    protected CollectorPipeline getCollectorPipeline() {
+    @SuppressWarnings("rawtypes")
+	protected CollectorPipeline getCollectorPipeline() {
         return new ResultItemsCollectorPipeline();
     }
 
