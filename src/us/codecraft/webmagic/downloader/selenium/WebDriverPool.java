@@ -110,10 +110,16 @@ class WebDriverPool {
 			cliArgsCap.add("--web-security=false");
 			cliArgsCap.add("--ssl-protocol=any");
 			cliArgsCap.add("--ignore-ssl-errors=true");
+			
 			if(isUseProxy.equals("1")){
 				cliArgsCap.add("--proxy=" + sConfig.getProperty("proxy_host") + ":" + sConfig.getProperty("proxy_port"));
 				cliArgsCap.add("--proxy-type=http");
 			}
+			
+			if(sConfig.getProperty("driver_logFile") != null){
+				cliArgsCap.add("--webdriver-logfile=" + sConfig.getProperty("driver_logFile"));
+			}
+			
 			sCaps.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS,
 					cliArgsCap);
 			
