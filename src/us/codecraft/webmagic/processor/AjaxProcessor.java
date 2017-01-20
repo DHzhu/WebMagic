@@ -1,12 +1,7 @@
-/**  
- * @Title: GetLawAndRoles.java
- * @Package szse
- * @Description: [TODO]
- * @author Zhuyj
- * @date 2016-4-14
+/**
+ * 
  */
 package us.codecraft.webmagic.processor;
-
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,24 +14,24 @@ import java.util.regex.Pattern;
 import org.apache.http.HttpHost;
 import org.bson.Document;
 
+import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.selector.Selectable;
+import us.codecraft.webmagic.utils.LoadConfig;
+import us.codecraft.webmagic.utils.MongoManager;
+
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 
-import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.Request;
-import us.codecraft.webmagic.Site;
-import us.codecraft.webmagic.utils.LoadConfig;
-import us.codecraft.webmagic.utils.MongoManager;
-
 /**
- * ClassName: SzseProcessor 
- * @Description: [TODO]
- * @author Zhuyj
- * @date 2016-4-14
+ * @desc  : TODO
+ * @author: Zhu
+ * @date  : 2017年1月19日
  */
-public class PicProcessor implements PageProcessor{
+public class AjaxProcessor implements PageProcessor{
 	
 	private Site site = Site.me();
 
@@ -45,8 +40,8 @@ public class PicProcessor implements PageProcessor{
     	try {
     		String authorUrl = java.net.URLDecoder.decode(page.getUrl().toString(),"UTF-8");
 			
-			//图片处理--直接下载
-			Pattern pattern_attach = Pattern.compile(".*?\\/([^\\/]*?)\\.(jpg|png|jpeg)$",Pattern.CASE_INSENSITIVE);
+			//PDF、doc(x)、xls(x)、rar处理--直接下载
+			Pattern pattern_attach = Pattern.compile(".*?\\/([^\\/]*?)\\.(pdf|doc(x)?|xls(x)?|rar)$",Pattern.CASE_INSENSITIVE);
             Matcher matcher_attach = pattern_attach.matcher(authorUrl);
             if(matcher_attach.find()){
             	page.putField("fileName", matcher_attach.group(1));
@@ -81,32 +76,25 @@ public class PicProcessor implements PageProcessor{
     		}
     		List<Document> contents = new ArrayList<Document>();
             
-            //内容页处理--连接查找和入库
+            //内容页处理--二级连接查找和入库
             page.putField("content", page.getRawText());
-            Pattern pattern_page = Pattern.compile(".*?\\/([^\\/]*?)(\\/collection\\/\\d+.*?)$",Pattern.CASE_INSENSITIVE);
+            Pattern pattern_page = Pattern.compile(".*?\\/([^\\/]*?)\\.(shtml|html|htm)$",Pattern.CASE_INSENSITIVE);
             Matcher matcher_page = pattern_page.matcher(authorUrl);
             if(matcher_page.find()){          	
+            	page.putField("fileName", matcher_page.group(1));
+            	page.putField("fileType", matcher_page.group(2));
             	
-            	//2级连接不再处理
+            	//2级连接页面不再处理
             	if(page.getRequest().getExtra("level") != null && 
             			"2".equals(String.valueOf(page.getRequest().getExtra("level")))){
             		return;
-            	}
-            	
-            	//并将下一页添加到待处理流程中
-            	if(page.getRequest().getExtra("NextPage") != null){
-            		if(!authorUrl.matches("(?i).*?page\\=(\\d+)$")){
-            			authorUrl += "?page=1";
-            		}
-            		String urlNext = authorUrl.replaceAll("\\?page\\=(\\d+)", String.valueOf(page.getRequest().getExtra("NextPage")));
-            		page.addTargetRequest(new Request(urlNext));
-            	}
+            	} 
             	
             	//二级链接处理
-            	List<String> getUrls = page.getHtml().xpath("//img/@src").all();
+            	List<String> getUrls = page.getHtml().xpath("div[@class='news_zw']//a/@href").all();
         		for(String str : getUrls){
         			str = java.net.URLDecoder.decode(str,"UTF-8");
-        			if(results.contains(str) || !str.matches(".*?\\/([^\\/]*?)\\.(jpg|png)$")) continue;
+        			if(results.contains(str) || str.matches("(?i)^mailto:.*?")) continue;
         			
         			Request request = new Request(str);
         			request.putExtra("level", "2");
@@ -129,8 +117,60 @@ public class PicProcessor implements PageProcessor{
         		if(!contents.isEmpty()){
                 	collection.insertMany(contents);
                 }
+        		
+            	return;
             }
             
+            //列表页处理--菜单连接不入库、列表内容入库
+            List<String> menuUrls = page.getHtml().xpath("div[@class='l_nav']//a/@href").regex(".*?/bsywgz/.*").all();
+            page.addTargetRequests(menuUrls);
+            
+            //获取列表元素
+            //去全角空格
+            String authorName = "";
+            try{
+            	authorName = page.getHtml().xpath("span[@class='cls-title']/text()").toString().replaceAll(" ", " ").trim();
+            }catch(Exception e){
+            	authorName = page.getHtml().xpath("a[@class='title1']/text()").toString().replaceAll(" ", " ").trim();
+            }
+            List<Selectable> targets = page.getHtml().xpath("//table/tbody/tr/td[@class='tdline2']").nodes();
+      
+            for(Selectable element : targets){
+            	String contentUrl = java.net.URLDecoder.decode(element.xpath("//a/@href").toString(),"UTF-8");
+            	if(results.contains(contentUrl)) continue;
+            	
+            	page.addTargetRequest(contentUrl);
+            	
+            	//未下载的不需要再次插入数据库
+    			if(resultsC.contains(contentUrl)) continue;
+            	
+            	Document doc = new Document();
+            	doc.append("columnName",authorName);
+                doc.append("columnUrl",authorUrl);
+                
+                doc.append("fileUrl", contentUrl);
+                doc.append("fileName", contentUrl.substring(contentUrl.lastIndexOf("/") + 1));
+                
+                
+            	String title = element.xpath("//a/text()").toString();
+            	doc.append("title", title);
+            	
+            	String date = element.xpath("//span/text()").toString().replaceAll("[\\[\\]]", "");
+            	doc.append("fileDate",date);
+            	
+            	SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            	doc.append("saveTime",sdf.format(new Date()));
+            	doc.append("isScan",0);
+            	doc.append("isNew",1);
+            	doc.append("isChild", 0);
+            	contents.add(doc);
+            }
+            
+            //已存在但未下载的重新下载
+            
+            if(!contents.isEmpty()){
+            	collection.insertMany(contents);
+            }
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -153,3 +193,4 @@ public class PicProcessor implements PageProcessor{
         return site;
     }
 }
+

@@ -1,9 +1,5 @@
-/**  
- * @Title: SzseSeleniumDownloader.java
- * @Package us.codecraft.webmagic.downloader.selenium
- * @Description: [TODO]
- * @author Zhuyj
- * @date 2016-4-15
+/**
+ * 
  */
 package us.codecraft.webmagic.downloader.selenium;
 
@@ -13,10 +9,14 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -26,12 +26,11 @@ import us.codecraft.webmagic.downloader.Downloader;
 import us.codecraft.webmagic.selector.PlainText;
 
 /**
- * ClassName: SzseSeleniumDownloader 
- * @Description: [TODO]
- * @author Zhuyj
- * @date 2016-4-15
+ * @desc  : TODO
+ * @author: Zhu
+ * @date  : 2017年1月19日
  */
-public class PicSeleniumDownloader implements Downloader, Closeable {
+public class AjaxSeleniumDownloader implements Downloader, Closeable {
 
 	private volatile WebDriverPool webDriverPool;
 
@@ -40,6 +39,8 @@ public class PicSeleniumDownloader implements Downloader, Closeable {
 	private int sleepTime = 0;
 
 	private int poolSize = 1;
+	
+	private String pageNum;
 	
 	private int pageSize = 10;
 	
@@ -50,7 +51,7 @@ public class PicSeleniumDownloader implements Downloader, Closeable {
 	private String content;
 
 	
-	public PicSeleniumDownloader setPageSize(int pageSize) {
+	public AjaxSeleniumDownloader setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 		return this;
 	}
@@ -60,7 +61,7 @@ public class PicSeleniumDownloader implements Downloader, Closeable {
 	 * 
 	 * @author bob.li.0718@gmail.com
 	 */
-	public PicSeleniumDownloader() {
+	public AjaxSeleniumDownloader() {
 		
 	}
 
@@ -70,7 +71,7 @@ public class PicSeleniumDownloader implements Downloader, Closeable {
 	 * @param sleepTime sleepTime
 	 * @return this
 	 */
-	public PicSeleniumDownloader setSleepTime(int sleepTime) {
+	public AjaxSeleniumDownloader setSleepTime(int sleepTime) {
 		this.sleepTime = sleepTime;
 		return this;
 	}
@@ -99,7 +100,7 @@ public class PicSeleniumDownloader implements Downloader, Closeable {
 		page.setRequest(request);
 		
 		String url = request.getUrl();
-		if(url.matches("(?i).*?\\/([^\\/]*?)\\.(jpg|png|jpeg)$")){
+		if(url.matches("(?i).*?\\/([^\\/]*?)\\.(pdf|doc(x)?|xls(x)?|rar)$")){
         	page.setRawText("");
         	webDriverPool.returnToPool(webDriver);
         	return page;
@@ -118,29 +119,60 @@ public class PicSeleniumDownloader implements Downloader, Closeable {
 			}
 		}
 		
-		String urlPage = "1";
-		if(url.matches("(?i).*?page\\=(\\d+)$")){
-			urlPage = url.replaceAll("(?i).*?page\\=(\\d+)", "$1");
-		}
-		int pageCount = Integer.valueOf(urlPage);
+		content = webDriver.getPageSource();
+		page.setRawText(content);
+		
+		int pageCount = 1;
 		
 		//取内容页中正文部分
-		if(pageCount <= pageSize){
+		if(url.matches("(?i).*?\\/([^\\/]*?)\\.(s)?htm(l)?$")){
+			page.setRawText(content);
+			try{	
+				//掐头去尾并删除按钮部分
+				String total = page.getHtml().xpath("div[@class='content']").toString();
+				Document doc = Jsoup.parse(total);
+				doc.getElementById("hideBtn").remove();
+				page.setRawText(doc.outerHtml());
+			}
+			catch(Exception e){
+				logger.error("fail to extract content!");
+			}
+				
+			webDriverPool.returnToPool(webDriver);
+			return page;
+			
+		}
+		
+		//ajax分页，通过点击下一页 获取页面内容
+		while(pageCount < pageSize){
 			try{
-				java.util.List<WebElement> lists = webDriver.findElements(By.xpath("//div[@class='zm-invite-pager']//span/a"));
-				WebElement btnElement = lists.get(lists.size() - 1);
-				String clickStr = btnElement.getText();
-				if(btnElement != null && clickStr.endsWith("下一页")){
-					pageCount ++;
-					request.putExtra("NextPage", "?page=" + pageCount);
-				}
-				java.util.List<WebElement> listC = webDriver.findElements(By.xpath("//div[@class='zm-item-fav']//textarea[@class='content']"));
-				for(WebElement element : listC){
-					content += element.getAttribute("value");
+				WebElement btnElement = webDriver.findElement(By.xpath("//input[@class='cls-navigate-next']"));
+				String clickStr = btnElement.getAttribute("onClick");
+				if(btnElement != null && clickStr != null){
+					pageNum = clickStr.replaceAll("(?i).*?\\&PAGENUM\\=(\\d+)", "$1");
+					btnElement.findElement(By.xpath("..")).click();
+					btnElement.click();
+					new WebDriverWait(webDriver, 60).until(new ExpectedCondition<Boolean>() {
+					    @Override
+					    public Boolean apply(WebDriver driver) {
+					        Boolean result = false;
+					        try {
+					        	WebElement btnElementC = driver.findElement(By.xpath("//input[@class='cls-navigate-next']"));
+								String clickStrC = btnElementC.getAttribute("onClick");
+								if(clickStrC == null || !clickStrC.replaceAll("(?i).*?\\&PAGENUM\\=(\\d+)", "$1").equals(pageNum)){
+									content += driver.getPageSource();
+									result = true;
+								}
+					        } catch(Exception e){        
+					        }
+					        return result;
+					    }
+					});
 				}
 			}catch(Exception e){
 				
 			}
+			pageCount ++;
 		}
 		
 		page.setRawText(content);
