@@ -13,9 +13,11 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openqa.selenium.Proxy.ProxyType;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.logging.LogType;
@@ -111,25 +113,20 @@ class WebDriverPool {
 			cliArgsCap.add("--ssl-protocol=any");
 			cliArgsCap.add("--ignore-ssl-errors=true");
 			
+			cliArgsCap.add("--webdriver-loglevel=" + (sConfig.getProperty("driver_loglevel") != null ? sConfig
+					.getProperty("driver_loglevel")
+					: "INFO"));
+			cliArgsCap.add("--webdriver-logfile=" + sConfig.getProperty("driver_logFile"));
+			
 			if(isUseProxy.equals("1")){
 				cliArgsCap.add("--proxy=" + sConfig.getProperty("proxy_host") + ":" + sConfig.getProperty("proxy_port"));
-				cliArgsCap.add("--proxy-type=http");
-			}
-			
-			if(sConfig.getProperty("driver_logFile") != null){
-				cliArgsCap.add("--webdriver-logfile=" + sConfig.getProperty("driver_logFile"));
+				cliArgsCap.add("--proxy-type=" + ProxyType.MANUAL);
 			}
 			
 			sCaps.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS,
 					cliArgsCap);
 			
-			// Control LogLevel for GhostDriver, via CLI arguments
-			sCaps.setCapability(
-					PhantomJSDriverService.PHANTOMJS_GHOSTDRIVER_CLI_ARGS,
-					new String[] { "--logLevel="
-							+ (sConfig.getProperty("driver_loglevel") != null ? sConfig
-									.getProperty("driver_loglevel")
-									: "INFO") });
+			
 
 		}
 		// Fetch HtmlUnit-specific configuration parameters
@@ -145,7 +142,7 @@ class WebDriverPool {
 			
 			LoggingPreferences logPrefs = new LoggingPreferences();
 	        logPrefs.enable(LogType.DRIVER, Level.parse(sConfig.getProperty("driver_loglevel","INFO")));
-			sCaps.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
+	        sCaps.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
 			
 			if(isUseProxy.equals("1")){
 				Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(sConfig.getProperty("proxy_host"),
