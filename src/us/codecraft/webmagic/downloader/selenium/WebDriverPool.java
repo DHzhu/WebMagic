@@ -8,6 +8,7 @@ import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.BlockingDeque;
@@ -17,7 +18,6 @@ import java.util.logging.Level;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpHost;
 import org.openqa.selenium.Proxy.ProxyType;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
@@ -31,6 +31,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.javascript.host.Map;
 
 import us.codecraft.webmagic.utils.LoadConfig;
 
@@ -123,17 +124,16 @@ class WebDriverPool {
 				System.out.println("Test will use PhantomJS internal GhostDriver");
 			}
 			
+			sCaps.setCapability("acceptSslCerts",true);
+			
 			if(isUseProxy.equals("1")){
-				String proxyStr = sConfig.getProperty("proxy_host") + sConfig.getProperty("proxy_port");
+				String proxyStr = sConfig.getProperty("proxy_host") + ":" + sConfig.getProperty("proxy_port");
 				org.openqa.selenium.Proxy proxy = new org.openqa.selenium.Proxy();
 				proxy.setSslProxy(proxyStr)
 					.setHttpProxy(proxyStr);
+				proxy.setProxyType(ProxyType.MANUAL);
 				builder.withProxy(proxy);
 			}
-			
-			sCaps.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS,
-					cliArgsCap);
-			
 			pjsds = builder.build();
 
 		}
