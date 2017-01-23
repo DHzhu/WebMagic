@@ -1,3 +1,3 @@
-# WebMagic_L
+# WebMagic
 WebMagic 爬虫程序
 支持代理、phantomjs、htmlunit、mongodb增量爬取
