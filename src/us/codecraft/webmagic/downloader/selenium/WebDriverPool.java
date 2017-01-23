@@ -1,5 +1,6 @@
 package us.codecraft.webmagic.downloader.selenium;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -13,10 +14,10 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpHost;
 import org.openqa.selenium.Proxy.ProxyType;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
@@ -24,13 +25,14 @@ import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
+import org.openqa.selenium.phantomjs.PhantomJSDriverService.Builder;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-import us.codecraft.webmagic.utils.LoadConfig;
-
 import com.gargoylesoftware.htmlunit.BrowserVersion;
+
+import us.codecraft.webmagic.utils.LoadConfig;
 
 /**
  * @author code4crafter@gmail.com <br>
@@ -81,6 +83,8 @@ class WebDriverPool {
 		ArrayList<String> cliArgsCap = new ArrayList<String>();
 		//proxy
 		String isUseProxy = sConfig.getProperty("proxy_type", "0");
+		
+		PhantomJSDriverService pjsds = null;
 				
 		// Fetch PhantomJS-specific configuration parameters
 		if (driver.equals(DRIVER_PHANTOMJS)) {
@@ -89,11 +93,20 @@ class WebDriverPool {
 			sCaps.setJavascriptEnabled(true);
 			sCaps.setCapability("takesScreenshot", false);
 			
+			String[] phantomArgs = new String[]{"--webdriver-loglevel=" + sConfig.getProperty("driver_loglevel")
+												,"--web-security=false"
+												,"--ssl-protocol=any"
+												,"--ignore-ssl-errors=true"};
+			File logfile = new File(sConfig.getProperty("driver_logFile"));
+			
+			Builder builder = new PhantomJSDriverService.Builder();
+			
+			builder.usingCommandLineArguments(phantomArgs)
+					.withLogFile(logfile);
+			
 			// "phantomjs_exec_path"
 			if (sConfig.getProperty("exec_path") != null) {
-				sCaps.setCapability(
-						PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY,
-						sConfig.getProperty("exec_path"));
+				builder.usingPhantomJSExecutable(new File(sConfig.getProperty("exec_path")));
 			} else {
 				throw new IOException(
 						String.format(
@@ -109,30 +122,23 @@ class WebDriverPool {
 			} else {
 				System.out.println("Test will use PhantomJS internal GhostDriver");
 			}
-			cliArgsCap.add("--web-security=false");
-			cliArgsCap.add("--ssl-protocol=any");
-			cliArgsCap.add("--ignore-ssl-errors=true");
-			
-			cliArgsCap.add("--webdriver-loglevel=" + (sConfig.getProperty("driver_loglevel") != null ? sConfig
-					.getProperty("driver_loglevel")
-					: "INFO"));
-			cliArgsCap.add("--webdriver-logfile=" + sConfig.getProperty("driver_logFile"));
 			
 			if(isUseProxy.equals("1")){
-				cliArgsCap.add("--proxy=" + sConfig.getProperty("proxy_host") + ":" + sConfig.getProperty("proxy_port"));
-				cliArgsCap.add("--proxy-type=" + ProxyType.MANUAL);
+				String proxyStr = sConfig.getProperty("proxy_host") + sConfig.getProperty("proxy_port");
+				org.openqa.selenium.Proxy proxy = new org.openqa.selenium.Proxy();
+				proxy.setSslProxy(proxyStr)
+					.setHttpProxy(proxyStr);
+				builder.withProxy(proxy);
 			}
 			
 			sCaps.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS,
 					cliArgsCap);
 			
-			
+			pjsds = builder.build();
 
 		}
 		// Fetch HtmlUnit-specific configuration parameters
 		else if(driver.equals(DRIVER_HTMLUNIT)){
-			// Prepare capabilities
-			//sCaps = new DesiredCapabilities().htmlUnit();
 			sCaps = new DesiredCapabilities().htmlUnitWithJs();
 			sCaps.setCapability(CapabilityType.TAKES_SCREENSHOT, false);
 			sCaps.setJavascriptEnabled(true);
@@ -160,7 +166,7 @@ class WebDriverPool {
 		} else if (driver.equals(DRIVER_HTMLUNIT)) {
 			mDriver = new HtmlUnitDriver(sCaps);
 		} else if (driver.equals(DRIVER_PHANTOMJS)) {
-			mDriver = new PhantomJSDriver(sCaps);
+			mDriver = new PhantomJSDriver(pjsds, sCaps);
 		}
 	}
 
